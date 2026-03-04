@@ -1,0 +1,18 @@
+[project]
+name = "llm-knowledge"
+version = "0.1.0"
+description = "Knowledge notes and code experiments for LLM and Transformer."
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "torch",
+]
+
+[tool.uv]
+# 当前仓库不是标准可发布 Python 包（主要是笔记 + 脚本），
+# 因此让 uv 仅管理依赖，不尝试安装本项目自身。
+package = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
