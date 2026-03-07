@@ -58,8 +58,11 @@ $$softmax(\alpha_{ij}) = {e^{\alpha_{ij}} \over \sum_{j=1}^{d_k} e^{\alpha_{ij}}
 ## multihead-attention
 ![[file-20260304230227294.png]]
 不同的head，对应不同的模式识别，也会训练出不同的 $W^Q, W^K, W^V$
-此外还会新增一个 $W^O$ 矩阵。多个head计算得到的多个 $Z_i$ 矩阵，$$Z_i \in R^{seq\_len \times k\_dim} , 即 \ Z_i \in R^{seq\_len \times  (d_{model} / num\_heads)}$$会首先按行进行拼接（concatenate），得到 $Z^*$， $$Z^* \in R^{seq\_len \times d\_model}$$，然后和 $W^O \in R^{d\_model \times k\_dim}$ 矩阵做乘法得到最终的multihead attention score矩阵 $Z$
+此外还会新增一个 $W^O$ 矩阵。多个head计算得到的多个 $Z_i$ 矩阵，$$Z_i \in R^{seq\_len \times k\_dim} , 即 \ Z_i \in R^{seq\_len \times  (d_{model} / num\_heads)}$$会首先按行进行拼接（concatenate），得到 $Z^*$， $$Z^* \in R^{seq\_len \times d\_model}$$，然后和 $W^O \in R^{d\_model \times d\_model}$ 矩阵做乘法得到最终的multihead attention score矩阵 $Z \in R^{seq\_len \times d\_model}$
  
- 
- [原论文]([https://arxiv.org/abs/1706.03762]())
- 
+## 矩阵乘法的运算量
+一个 $m \times k$ 和一个 $k \times n$ 的矩阵相乘，乘法计算量为 $m \times n \times k$，简单来说就是计算结果矩阵大小为 $m \times n$，计算每个元素需要 $k$ 次乘法，所以是 $m \times n \times k$ ；加法计算量为 $m \times n \times （k-1）$，类似的，计算每个元素需要 $k-1$ 次加法
+
+
+[原论文]([https://arxiv.org/abs/1706.03762]())
+[参考文章1](https://zhuanlan.zhihu.com/p/338817680)

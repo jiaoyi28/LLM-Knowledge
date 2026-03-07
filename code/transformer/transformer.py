@@ -167,6 +167,12 @@ class PositionwiseFeedForward(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            x: [B, L, D]，每个位置的隐藏状态表示。
+        Returns:
+            [B, L, D]，经过前馈网络后的表示。
+        """
         return self.net(x)
 
 
@@ -192,6 +198,13 @@ class EncoderLayer(nn.Module):
         x: torch.Tensor,
         src_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        """
+        Args:
+            x: [B, Ls, D]，编码器当前层输入。
+            src_mask: 可选，源序列注意力掩码，常见形状 [B, 1, 1, Ls] 或可广播到该形状。
+        Returns:
+            [B, Ls, D]，编码器当前层输出。
+        """
         # 子层 1: 自注意力 + 残差 + 归一化
         attn_out, _ = self.self_attn(x, x, x, src_mask)
         x = self.norm1(x + self.dropout(attn_out))
@@ -229,6 +242,15 @@ class DecoderLayer(nn.Module):
         tgt_mask: Optional[torch.Tensor] = None,
         memory_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        """
+        Args:
+            x: [B, Lt, D]，解码器当前层输入。
+            memory: [B, Ls, D]，来自编码器的输出。
+            tgt_mask: 可选，目标端自注意力掩码，常见形状 [B, 1, Lt, Lt]。
+            memory_mask: 可选，交叉注意力掩码，常见形状 [B, 1, 1, Ls]。
+        Returns:
+            [B, Lt, D]，解码器当前层输出。
+        """
         # 子层 1: masked self-attn
         self_attn_out, _ = self.self_attn(x, x, x, tgt_mask)
         x = self.norm1(x + self.dropout(self_attn_out))
@@ -272,6 +294,13 @@ class Encoder(nn.Module):
         src_tokens: torch.Tensor,
         src_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        """
+        Args:
+            src_tokens: [B, Ls]，源序列 token id。
+            src_mask: 可选，源序列掩码，常见形状 [B, 1, 1, Ls]。
+        Returns:
+            [B, Ls, D]，编码器最终输出（memory）。
+        """
         # embedding 后乘 sqrt(d_model) 是论文中的常见做法，帮助数值尺度稳定
         x = self.embedding(src_tokens) * math.sqrt(self.d_model)
         x = self.pos_encoding(x)
@@ -313,6 +342,15 @@ class Decoder(nn.Module):
         tgt_mask: Optional[torch.Tensor] = None,
         memory_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        """
+        Args:
+            tgt_tokens: [B, Lt]，目标序列 token id。
+            memory: [B, Ls, D]，编码器输出。
+            tgt_mask: 可选，目标端自注意力掩码，常见形状 [B, 1, Lt, Lt]。
+            memory_mask: 可选，交叉注意力掩码，常见形状 [B, 1, 1, Ls]。
+        Returns:
+            [B, Lt, D]，解码器最终输出隐藏状态。
+        """
         x = self.embedding(tgt_tokens) * math.sqrt(self.d_model)
         x = self.pos_encoding(x)
         x = self.dropout(x)
